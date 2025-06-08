@@ -21,19 +21,36 @@ from .models import UserProfile
 from .serializers import UserSerializer
 
 from .serializers import UserProfileSerializer
+from rest_framework import permissions
+from .permissions import IsOwner 
+
 # from django.contrib.auth.hashers import make_password
 
-class NoteViewSet(viewsets.ModelViewSet):
-    queryset = Note.objects.all().order_by('-created_at')
-    serializer_class = NoteSerializer
+# class NoteViewSet(viewsets.ModelViewSet):
+#     queryset = Note.objects.all().order_by('-created_at')
+#     serializer_class = NoteSerializer
 
-    def update(self, request, *args, **kwargs):
-        partial = True  # <- allow partial updates
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        return Response(serializer.data)
+#     def update(self, request, *args, **kwargs):
+#         partial = True  # <- allow partial updates
+#         instance = self.get_object()
+#         serializer = self.get_serializer(instance, data=request.data, partial=partial)
+#         serializer.is_valid(raise_exception=True)
+#         self.perform_update(serializer)
+#         return Response(serializer.data)
+
+class NoteViewSet(viewsets.ModelViewSet):
+    serializer_class = NoteSerializer
+    permission_classes = [permissions.IsAuthenticated, IsOwner]
+
+    # queryset = Note.objects.none()  # Dummy queryset just to satisfy the router
+
+    def get_queryset(self):
+        # Only return notes that belong to the authenticated user
+        return Note.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        # Automatically assign the note to the authenticated user
+        serializer.save(user=self.request.user)
     
 class UserProfileViewSet(viewsets.ModelViewSet):
     queryset = UserProfile.objects.all()

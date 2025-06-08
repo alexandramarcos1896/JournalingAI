@@ -6,7 +6,8 @@ from .models import UserProfile
 class NoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Note
-        fields = ['id', 'title', 'content']
+        fields = ['id','title', 'content','created_at','user']
+        read_only_fields = ['id', 'created_at', 'user'] 
         extra_kwargs = {
             'title': {'required': False},
             'content': {'required': False},
