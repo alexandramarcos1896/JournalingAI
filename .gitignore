@@ -141,3 +141,5 @@ package-lock.json
 # db.sqlite3
 *.sqlite3
 
+
+./jounal_app/migrations/
